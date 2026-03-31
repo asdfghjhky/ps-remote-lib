@@ -52,17 +52,17 @@ function block {
         Write-Warning "Failed to block input. Please run PowerShell as Administrator."
         return
     }
-    echo "Input blocked for $Seconds seconds."
+    echo "blocked for $Seconds secs"
     Start-Sleep -Seconds $Seconds
     [Win32.BlockInputHelper]::BlockInput($false) | Out-Null
-    echo "Input unblocked automatically."
+    echo "unblocked gng"
 }
 
 # Command: unblock - manually restores keyboard/mouse input
 function unblock {
     Init-BlockInput
     [Win32.BlockInputHelper]::BlockInput($false) | Out-Null
-    echo "Input manually unblocked."
+    echo "unblocked gng"
 }
 
 # Help command – list available remote‑library commands
