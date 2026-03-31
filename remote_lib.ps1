@@ -10,10 +10,8 @@ function Invoke-DiscordWebhook {
         [Parameter(Mandatory = $true)][string]$FilePath
     )
     try {
-        $bytes = [System.IO.File]::ReadAllBytes($FilePath)
-        $base64 = [System.Convert]::ToBase64String($bytes)
-        $json = @{"content" = "Screenshot"; "attachments" = @(@{"id" = "0"; "filename" = (Split-Path $FilePath -Leaf); "content_type" = "image/png"; "size" = $bytes.Length; "url" = ""; "proxy_url" = ""; "height" = $null; "width" = $null; "data" = $base64 }) } | ConvertTo-Json -Depth 5
-        Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $json -ContentType 'application/json'
+        # Using curl.exe properly formats the multipart/form-data for Discord
+        & curl.exe -s -F "file=@$FilePath" $WebhookUrl | Out-Null
     }
     catch {
         Write-Error "Failed to send webhook: $_"
