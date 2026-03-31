@@ -109,12 +109,14 @@ function press {
         if (-not ("Win32.Keyboard" -as [type])) {
             $Source = @"
 using System.Runtime.InteropServices;
-public class Keyboard {
-    [DllImport("user32.dll")]
-    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+namespace Win32 {
+    public class Keyboard {
+        [DllImport("user32.dll")]
+        public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+    }
 }
 "@
-            Add-Type -TypeDefinition $Source -Namespace "Win32" -Name "Keyboard"
+            Add-Type -TypeDefinition $Source
         }
         $KEYEVENTF_KEYUP = 2
         $VK_LWIN = 0x5B
